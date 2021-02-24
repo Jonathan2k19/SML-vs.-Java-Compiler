@@ -27,8 +27,8 @@ and primitives (TRUE :: tr) = (True, tr)
 
 
 (*
-Throws an exception of not everything could be parsed, otherwise return parsed input
-EXAPMLE: 
+Throws an exception if not everything could be parsed, otherwise return parsed input
+EXAMPLE: 
     val test = [FALSE, AND, LPAR, NEG, TRUE, RPAR]
     parse test -> And (False, Neg True)
 *)
