@@ -1,6 +1,6 @@
 (*
-THIS CODE CHECKS IF THE TYPES ARE CORRECT
-    See the file "typeRules.png" for reference
+IN THE ELABORATION STEP, THE PARSED INPUT IS CHECKED FOR TYPE CORRECTNESS
+    See the file "typeRules.png" for reference (a bit different to implementation)
 *)
 
 (*Datatypes and type synonyms*)
@@ -18,11 +18,10 @@ exception Error of string
 (*
 Environment procedures (optional)
 EXAMPLE of how to construct a type environment:
-    val env = updateEnvironment (updateEnvironment emptyEnvironment ("x") Bool) "y" Bool
+    val env = updateEnvironment (updateEnvironment emptyEnvironment ("x") (Constant True)) "y" (Constant False)
     --> env "z" will raise UnboundId "z" exception
-    --> env "x" will return Bool
+    --> env "x" will return Constant True
 *)
-
 fun emptyEnvironment x = raise UnboundId x
 fun updateEnvironment environment x a y = if y = x then a else environment y
 
@@ -33,7 +32,7 @@ fun elaboration env (Constant c) = (case c of True => Bool | False => Bool | _ =
   | elaboration env (Imp (e1, e2)) = (case (elaboration env e1, elaboration env e2) of (Bool, Bool) => Bool 
                                                                                   | _ => raise Error "elaboration: Imp")
   | elaboration env (Neg e) = (case (elaboration env e) of Bool => Bool | _ => raise Error "elaboration: Neg")
-  | elaboration env (Id e) = (env e handle UnboundId x =>raise Error ("elaboration: unbound identifier '"^x^"'"))
+  | elaboration env (Id e) = ((elaboration env (env e)) handle UnboundId x => raise Error ("elaboration: unbound identifier '"^x^"'"))
   | elaboration env _ = raise Error "elaboration: unknown pattern"
 
 (*
@@ -44,6 +43,6 @@ EXAMPLE:
 
 2) Not empty environment
     val test = And (Id "x", And (Imp (Constant False, Constant True), Neg (Constant True)))
-    val env = updateEnvironment (updateEnvironment emptyEnvironment ("x") Bool) "y" Bool
-    elaboration test --> Bool: ty
+    val env = updateEnvironment (updateEnvironment emptyEnvironment ("x") (Constant True)) "y" (Constant False)
+    elaboration env test --> Bool: ty
 *)

@@ -1,13 +1,18 @@
 (*
+THE LEXER EXTRACTS KEYWORDS (TOKENS) OUT OF AN INPUT STRING AND INTO A TOKEN LIST
+*)
+
+(*
 Due to the fact that "∧" and "¬" are hard to type, let's define them as follows:
     "∧" =: "and"
     "¬" =: "not"
 Therefore identifiers cannot be named "and" or "not"!
 *)
 
+(*Exceptions and datatypes*)
 exception Error of string
-datatype boolean = True | False;
-datatype token = LPAR | RPAR | NEG | AND | IMP | CONSTANT of boolean| ID of string;
+datatype boolean = True | False
+datatype token = LPAR | RPAR | NEG | AND | IMP | CONSTANT of boolean| ID of string
 
 (*cs/cr: character list*)
 fun lex nil = nil
@@ -24,7 +29,7 @@ fun lex nil = nil
     | lex (c :: cr) = if Char.isAlpha c then lexIdentifier [c] cr else raise Error "unknown character"
 and lexIdentifier akku cs = if null cs orelse not(Char.isAlpha (hd cs)) then ID(implode(akku)) :: lex cs else lexIdentifier (akku @ [(hd cs)]) (tl cs)
 
-(*CALL THIS FUNCTION*)
+(*CALL THIS PROCEDURE*)
 fun lexing (s:string) = lex (explode s)
 
 (*
