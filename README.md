@@ -8,13 +8,15 @@ The goal of this project is to learn a few things:
 
 ---
 ## GRAMMAR
+This language supports logical expressions and 
 1. **Operators:** '∧' (andExp), '->' (arrowExp), '¬' (notExp)
 2. **Constants:** "true", "false"
-3. **Grammar for recursive descent parsing:**
+3. **Identifiers:** string that can be assigned to costant value
+4. **Grammar for recursive descent parsing:**
     * arrowExp    ::= andExp {"->" arrowExp}
     * andExp      ::= {andExp '∧'} notExp
     * notExp      ::= {'¬'} primitives
-    * primitives  ::= "true" | "false" | "(" arrowExp ")"
+    * primitives  ::= Id | "true" | "false" | "(" arrowExp ")"
 
 
 ---
