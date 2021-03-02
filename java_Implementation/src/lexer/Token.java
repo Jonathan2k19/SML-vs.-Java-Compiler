@@ -8,15 +8,15 @@ package lexer;
 import java.util.regex.*;
 
 public class Token {
-	protected TokenType type = null;
-	protected String value = null;		// only != null if TokenType == identifier or constant
+	private TokenType type = null;
+	private String value = null;		// only != null if TokenType == identifier or constant
 	
 	// CONSTRUCTORS
-	protected Token (TokenType type) {
+	public Token (TokenType type) {
 		this.type = type;
 	}
 	
-	protected Token (TokenType type, String name) {
+	public Token (TokenType type, String name) {
 		this.type = type;
 		if (name != null) {
 			this.value = name;
@@ -35,7 +35,15 @@ public class Token {
 		}
 	}
 	
-	enum TokenType {		
+	public TokenType getTokenType () {
+		return this.type;
+	}
+	
+	public String getTokenValue () {
+		return this.value;
+	}
+	
+	public enum TokenType {		
 		/* DIFFERENT TOKEN TYPES AND THEIR REGULAR EXPRESSIONS
 		 * --> regex information: (https://medium.com/factory-mind/regex-tutorial-a-simple-cheatsheet-by-examples-649dc1c3f285)	
 		 */
@@ -60,14 +68,14 @@ public class Token {
 		/**
 		 *@return pattern of regex of TokenType e. g.: AND => ^and$
 		 **/
-		protected Pattern getPattern () {
+		public Pattern getPattern () {
 			return this.pattern;
 		}
 		
 		/**
 		 *@return pattern string => Matcher uses that string to determine if this Token exists in the input 
 		 **/
-		protected String patternToString (TokenType token) {
+		public String patternToString (TokenType token) {
 			return ("|(?<" + token.name() +  ">" + token.getPattern()+")");
 		}
 	}

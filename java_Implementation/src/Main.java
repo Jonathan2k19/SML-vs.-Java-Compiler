@@ -29,5 +29,24 @@ public class Main {
 			System.out.println("ERROR_LEXING: It seems like you entered something illegal.\n"
 					+ "-->EXAMPLE of valid input: x and ((false -> true) and (not true))");
 		}
+		
+		
+		/* #################################################################### 
+		 * 	PARSER: GENERATES A SYNTAX TREE LIKE EXPRESSION FROM A TOKEN LIST
+		 * ####################################################################
+		 **/
+		
+		//TODO: check expressions, environment
+		
+		
+		/* #################################################################### 
+		 * 	ELABORATION: TODO: use expression class to check types
+		 * ####################################################################
+		 **/
+		
+		/* #################################################################### 
+		 * 	EVALUATION: TODO: use expression class method calculateValue()
+		 * ####################################################################
+		 **/
 	}	
 }
