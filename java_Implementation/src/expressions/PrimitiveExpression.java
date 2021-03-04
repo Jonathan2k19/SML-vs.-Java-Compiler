@@ -11,13 +11,14 @@ import lexer.Token;
 import lexer.Token.TokenType;
 
 public class PrimitiveExpression extends Expression{
-	private Token operator = null;					// CONSTANT (true/false) or ID (name)
-	private Environment env = new Environment();	// stores value of ID (name)
+	private Token operator = null;					// CONSTANT (true|false) or ID (name)
+	private Environment env = new Environment();	// stores corresponding value of ID (name)
 	
 	
 	// CONSTRUCTOR
 	/**
-	 *@param operator (id:value or constant:value) and environment (if operator is id) 
+	 *@param operator: ID:name | CONSTANT:value
+	 *@param environment: if operator is of type ID the environment has to be != null
 	 */
 	public PrimitiveExpression (Token operator, Environment env) {
 		if (operator == null)
@@ -38,9 +39,9 @@ public class PrimitiveExpression extends Expression{
 	// METHODS
 	@Override
 	public String toString() {
-		// id and constant have values != null
 		return (this.operatorType().name() + ":" + this.operator.getTokenValue() + " ");
 	}
+	
 
 	@Override
 	public boolean calculateValue() {
@@ -51,14 +52,14 @@ public class PrimitiveExpression extends Expression{
 				return false;
 			}
 		} else {
-			// Identifier
+			// Identifier -> lookup corresponding value of the name of the ID in the environment
 			return (this.env.lookupId(this.operator.getTokenValue()));
 		}
 	}
 
+	
 	@Override
 	public TokenType operatorType() {
 		return (this.operator.getTokenType());
 	}
-
 }

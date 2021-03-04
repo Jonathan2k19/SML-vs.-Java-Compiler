@@ -24,6 +24,7 @@ public class BinaryExpression extends Expression{
 		this.operator = operator;
 		this.right = right;
 	}
+	
 
 	// METHODS
 	@Override
@@ -31,6 +32,7 @@ public class BinaryExpression extends Expression{
 		return (this.operatorType().name() + " (" + this.left.toString() + this.right.toString() + ")");
 	}
 
+	
 	@Override
 	public boolean calculateValue() {
 		if (this.operatorType() == Token.TokenType.AND) {
@@ -43,6 +45,7 @@ public class BinaryExpression extends Expression{
 		}
 	}
 
+	
 	@Override
 	public TokenType operatorType() {
 		return this.operator.getTokenType();

@@ -33,7 +33,9 @@ public class Lexer {
 	
 	
 	
-	//TODO, FIXME: when entering a single "(" the lexer does not lex it 
+	/*TODO: when entering a single "(" the lexer does not lex it
+	 *	--> I mean it is not a valid input to be compiled but the lexer still has to lex it 
+	 **/
 	
 	
 	

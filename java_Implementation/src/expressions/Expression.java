@@ -1,3 +1,6 @@
+//TODO: adjust toString() methods => looks ugly right know without any commas
+
+
 package expressions;
 
 import lexer.Token;
@@ -14,6 +17,7 @@ public abstract class Expression {
 	@Override 
 	public abstract String toString();
 	
+
 	/**
 	 *@return the value represented by the expression
 	 */

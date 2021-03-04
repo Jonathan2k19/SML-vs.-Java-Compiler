@@ -8,6 +8,8 @@
  *  notExp      ::= {'¬'} primitives
  *  primitives  ::= Id | Constant | "(" arrowExp ")"
  *  
+ *  ---> creating one method for each syntax categorie
+ *  
  * EXAMPLE: 
  * 	- input: [ID:x, AND, LPAR, LPAR, CONSTANT:false, IMP, CONSTANT:true, RPAR, AND, LPAR, NEG, CONSTANT:true, RPAR, RPAR]
  *  - output: AND (ID:x, AND (IMP (CONSTANT:false, CONSTANT:true), NEG (CONSTANT:true)))
@@ -16,17 +18,14 @@
 
 
 
-
-//TODO: adjust toString() methods => looks ugly right know without any commas
-
-
-
-
 package parser;
 
+import java.util.ArrayList;
 import java.util.List;
 import lexer.Token;
 import expressions.*;
+
+
 
 /**
  *@return	Generates a pair of an already parsed expression and the rest of the token list to be parsed after that 
@@ -52,12 +51,10 @@ class ParsedUnparsedPair {
 }
 
 
-public class Parser {
-	/*
-	 * INFO: I need these try catch blocks, otherwise it will throw an IndexOutOfBoundsException because parseNext list is empty -> return parsed stuff 
-	 **/
-	
+
+public class Parser {	
 	private Environment environment = null;
+	
 	
 	// CONSTRUCTOR
 	/**
@@ -67,79 +64,79 @@ public class Parser {
 		this.environment = env;
 	}
 	
-	// METHODS	
+	
+	/* METHODS
+	 * 
+	 * - I need these try catch blocks, otherwise it will throw an IndexOutOfBoundsException because parseNext list is empty 
+	 * 		--> return parsed expression in that case  
+	 **/ 	
 	public ParsedUnparsedPair arrowExp (List<Token> tokens) throws Exception {
-		/*
-		 * SML equivalent:
-		 * arrowExp ts = (case (andExp ts) of (e, IMP :: tr) => let val (e', tr') = arrowExp tr in (Imp (e, e'), tr') end
-    										| (e, tr) => (e,tr))
-		 * */		
-		ParsedUnparsedPair andParsed = new ParsedUnparsedPair(andExp (tokens).getParsed(), andExp (tokens).getParseNext());	// (e,tr)
-		Expression left = andParsed.getParsed();	//e
+		ParsedUnparsedPair andParsed = new ParsedUnparsedPair(andExp (tokens).getParsed(), andExp (tokens).getParseNext());
+		Expression left = andParsed.getParsed();
 		Expression right = null;
+		
+		// check whether the next token is of type IMP or not
 		try {
-			if (andParsed.getParseNext().get(0).getTokenType() == Token.TokenType.IMP) {	// (e, IMP :: tr)
-				// with IMP
+			// next token is of type IMP
+			if (andParsed.getParseNext().get(0).getTokenType() == Token.TokenType.IMP) {
 				List<Token> withoutIMP = andParsed.getParseNext().subList(1, andParsed.getParseNext().size());
-				ParsedUnparsedPair arrowParsed = arrowExp (withoutIMP);	// (e',tr')
+				ParsedUnparsedPair arrowParsed = arrowExp (withoutIMP);
 				right = arrowParsed.getParsed();
-				// return (Imp(e,e'),tr')
-				ParsedUnparsedPair impExpWithRest = new ParsedUnparsedPair(new BinaryExpression(new Token (Token.TokenType.IMP), left, right), arrowParsed.getParseNext());
+				Expression implicationExp = new BinaryExpression(new Token (Token.TokenType.IMP), left, right);
+				ParsedUnparsedPair impExpWithRest = new ParsedUnparsedPair(implicationExp, arrowParsed.getParseNext());
 				return impExpWithRest;
+				
+			// next token is not of type IMP
 			}else {
-				// no IMP as next token -> return (e,tr)
 				return andParsed;
 			}
 		} catch (IndexOutOfBoundsException e){
+			// there is no token to parse next -> return already parsed expression
 			return andParsed;
 		}
 	}
 	
 	
 	public ParsedUnparsedPair andExp (List<Token> tokens) throws Exception {
-		/*SML equivalent:
-		 * andExp ts = andExpHelp (notExp ts)
-		 **/
+		// passing tokens to helper method after parsing with notExp
 		ParsedUnparsedPair notParsed = new ParsedUnparsedPair(notExp(tokens).getParsed(),notExp(tokens).getParseNext());
 		return andExpHelp(notParsed);		
 	}
 	
 	
 	public ParsedUnparsedPair andExpHelp (ParsedUnparsedPair inputPair) throws Exception {
-		/*SML equivalent:
-		 * andExpHelp (e, AND :: tr) = let val (e', tr') = notExp tr in andExpHelp (And (e,e'), tr') end
-		 | andExpHelp (e,tr) = (e,tr)
-		 **/
 		try {
-			if (inputPair.getParseNext().get(0).getTokenType() == Token.TokenType.AND) {	// (e, AND :: tr)
+			// next token is of type AND
+			if (inputPair.getParseNext().get(0).getTokenType() == Token.TokenType.AND) {
 				List<Token> withoutAND = inputPair.getParseNext().subList(1, inputPair.getParseNext().size());
-				ParsedUnparsedPair notParsed = notExp (withoutAND);	// (e',tr')
-				// return andExpHelp (And(e,e'),tr')
-				Expression left = inputPair.getParsed();	// e
-				Expression right = notParsed.getParsed();	// e'
-				Expression andExpression = new BinaryExpression (new Token (Token.TokenType.AND), left, right);	// And(e,e')
+				ParsedUnparsedPair notParsed = notExp (withoutAND);
+				Expression left = inputPair.getParsed();
+				Expression right = notParsed.getParsed();
+				Expression andExpression = new BinaryExpression (new Token (Token.TokenType.AND), left, right);
 				return andExpHelp (new ParsedUnparsedPair(andExpression, notParsed.getParseNext()));
+				
+			// next token is not of type AND
 			}else {
 				return inputPair;
 			}
 		} catch (IndexOutOfBoundsException e) {
+			// there is no next token to be parsed -> return already parsed expression
 			return inputPair;
 		}
 	}
 	
 	
 	public ParsedUnparsedPair notExp (List<Token> tokens) throws Exception {
-		/*SML equivalent:
-		 * notExp (NEG :: tr) = let val (e, ts) = primitives tr in (Neg e, ts) end 
-    	 | notExp ts = primitives ts
-		 **/
 		try {
+			// next token is of type NEG
 			if(tokens.get(0).getTokenType() == Token.TokenType.NEG) {
-				ParsedUnparsedPair primitivesParsed = primitives(tokens.subList(1, tokens.size()));	// (e, ts)
-				Expression e = primitivesParsed.getParsed();	// e
+				ParsedUnparsedPair primitivesParsed = primitives(tokens.subList(1, tokens.size()));
+				Expression e = primitivesParsed.getParsed();
 				Expression negExpression = new UnaryExpression(new Token(Token.TokenType.NEG), e);
-				ParsedUnparsedPair negExpWithRest = new ParsedUnparsedPair(negExpression, primitivesParsed.getParseNext());	// (Neg e, ts)
+				ParsedUnparsedPair negExpWithRest = new ParsedUnparsedPair(negExpression, primitivesParsed.getParseNext());
 				return negExpWithRest;
+			
+			// next token is not of type NEG
 			} else {
 				return primitives(tokens);
 			}
@@ -150,39 +147,51 @@ public class Parser {
 	
 	
 	public ParsedUnparsedPair primitives (List<Token> tokens) throws Exception {
-		/*SML equivalence:
-		 * primitives (CONSTANT (c) :: tr) = (case c of True => (Constant True, tr) | False => (Constant False, tr) | _ => raise Error "parser: unknown constant")
-    	 | primitives (ID i :: tr) = (Id i, tr)
-		 | primitives (LPAR :: tr) = (case (arrowExp tr) of (e, RPAR :: tr') => (e, tr') | _ => raise Error "parser: missing right parenthesis")
-		 **/
-		List<Token> withoutFirstToken = tokens.subList(1, tokens.size());												// tr
+		// the token list with all elements but the first token
+		List<Token> withoutFirstToken = new ArrayList<Token>();
+		try {
+			withoutFirstToken = tokens.subList(1, tokens.size());
+		} catch (IllegalArgumentException e) {
+			// the only legal tokens (true|false) that generate a token list with size 1 are parsed correctly 
+			//  --> this has to be an unknown pattern
+			throw new Exception ("ERROR_PARSING: unknown pattern");
+		}
+		
+		// the next token to be parsed
 		Token firstToken = tokens.get(0);
+		
+		
+		// check if next token is of type CONSTANT(true|false)
 		if (firstToken.getTokenType() == Token.TokenType.CONSTANT) {
-			System.out.println("Parsed Constant");
+			// token is CONSTANT:true
 			if (firstToken.getTokenValue().equals("true")) {
-				Expression constantExp = new PrimitiveExpression(new Token (Token.TokenType.CONSTANT, "true"), null);		// (Constant:true)
-				ParsedUnparsedPair constantExpWithRest = new ParsedUnparsedPair(constantExp, withoutFirstToken);			// (Constant:true, tr)
+				Expression constantExp = new PrimitiveExpression(new Token (Token.TokenType.CONSTANT, "true"), null);
+				ParsedUnparsedPair constantExpWithRest = new ParsedUnparsedPair(constantExp, withoutFirstToken);
 				return constantExpWithRest;
+			// token is CONSTANT:false
 			} else if (firstToken.getTokenValue().equals("false")) {
-				Expression constantExp = new PrimitiveExpression(new Token (Token.TokenType.CONSTANT, "false"), null);		// (Constant:false)
-				ParsedUnparsedPair constantExpWithRest = new ParsedUnparsedPair(constantExp, withoutFirstToken);			// (Constant:false, tr)
+				Expression constantExp = new PrimitiveExpression(new Token (Token.TokenType.CONSTANT, "false"), null);
+				ParsedUnparsedPair constantExpWithRest = new ParsedUnparsedPair(constantExp, withoutFirstToken);
 				return constantExpWithRest;
+			// I should never get in that case
 			} else {
-				throw new Exception ("ERROR_PARSING: constant has value \"true\" or \"false\"");
+				throw new Exception ("ERROR_PARSING: Constant has to have one of the following values: \"true\" | \"false\"");
 			}
-		} else if (firstToken.getTokenType() == Token.TokenType.ID && firstToken.getTokenValue() != null){				// TODO: maybe test if tokenValue is not empty
-			System.out.println("Parsed ID: " + firstToken);
-			//Token idToken = new Token (Token.TokenType.ID, firstToken.getTokenValue());
-			Expression idExp = new PrimitiveExpression(firstToken, this.environment);									// ID:i
-			ParsedUnparsedPair idWithRest = new ParsedUnparsedPair(idExp, withoutFirstToken);							// (ID:i, tr)
+			
+		// check if next token is of type ID (string)
+		} else if (firstToken.getTokenType() == Token.TokenType.ID && firstToken.getTokenValue() != null){	
+			Expression idExp = new PrimitiveExpression(firstToken, this.environment);				
+			ParsedUnparsedPair idWithRest = new ParsedUnparsedPair(idExp, withoutFirstToken);
 			return idWithRest;
+		
+		// check if next token is of type LPAR -> if so: check if there is a closing parenthesis afterwards
 		} else if (firstToken.getTokenType() == Token.TokenType.LPAR){
-			System.out.println("Parsed LPAR");
 			try {	
 				if (arrowExp(withoutFirstToken).getParseNext().get(0).getTokenType() == Token.TokenType.RPAR) {
 					System.out.println("rpar: " + arrowExp(withoutFirstToken).getParseNext().get(0).getTokenType());
-					List<Token> arrParseNext = arrowExp(withoutFirstToken).getParseNext();									// RPAR::tr'
-					ParsedUnparsedPair arrowParsed = new ParsedUnparsedPair(arrowExp(withoutFirstToken).getParsed(), arrParseNext.subList(1, arrParseNext.size()));// (e, tr')
+					List<Token> arrParseNext = arrowExp(withoutFirstToken).getParseNext();								
+					ParsedUnparsedPair arrowParsed = new ParsedUnparsedPair(arrowExp(withoutFirstToken).getParsed(), 
+							arrParseNext.subList(1, arrParseNext.size()));												
 					return arrowParsed;
 				}else {
 					throw new Exception ("ERROR_PARSING: missing right parenthesis");
@@ -190,32 +199,30 @@ public class Parser {
 			} catch (IndexOutOfBoundsException e) {
 				throw new Exception ("ERROR_PARSING: missing right parenthesis"); 
 			}
+			
+		// unknown pattern (not an Id|Constant|Parenthesis)
 		} else {
-			System.out.println("\nDEBUGGING:");
-//			System.out.println(firstToken.getTokenValue());
-			System.out.println("First token: " + firstToken + ", after that: " + withoutFirstToken);
 			throw new Exception("ERROR_PARSING: unknown pattern");
 		}
 	}
 	
 	
 	/**
-	 *@return if successfull: parsed input gets returned, else: input that could not get parsed gets returned 
+	 *@return if successful: parsed input, else: already parsed input and input that could not get parsed
 	 */
 	public Expression parse (List<Token> tokens) throws Exception {
-		/*SML equivalence:
-		 * parse ts = case arrowExp ts of (e, nil) => e | _ => raise Error "something could not be parsed"
-		 **/
+		// check if everything could be parsed
 		if (tokens == null)
 			throw new IllegalArgumentException("ERROR_PARSING: no tokens to parse");
-		Expression parsed = arrowExp (tokens).getParsed();			// e
-		List<Token> restList = arrowExp (tokens).getParseNext();	// if null -> success, else rest of tokens that could not be parsed
+		Expression parsed = arrowExp (tokens).getParsed();
+		List<Token> restList = arrowExp (tokens).getParseNext();	// if null -> success, else: contains the unparsed tokens
 	
+		// output parsed input or throw exception
 		if (parsed != null && restList.isEmpty()) {
-			System.out.println("\n\nSuccess. Parsed: " + parsed.toString());
 			return parsed;
 		}else {
-			throw new Exception ("ERROR_PARSING: the token list could not be parsed entirely!\nThis is the parsed part: " + parsed.toString());
+			throw new Exception ("ERROR_PARSING: the token list could not be parsed entirely!\nThis is the parsed part: " + parsed.toString() 
+			+ "\nThis is the part that could not get parsed: " + restList);
 		}
 	}
 }
