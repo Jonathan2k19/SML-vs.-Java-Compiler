@@ -17,13 +17,13 @@ public class PrimitiveExpression extends Expression{
 	
 	// CONSTRUCTOR
 	/**
-	 *@param operator (id or constant) and environment (if operator is id) 
+	 *@param operator (id:value or constant:value) and environment (if operator is id) 
 	 */
 	public PrimitiveExpression (Token operator, Environment env) {
 		if (operator == null)
 			throw new IllegalArgumentException ("ERROR_PRIMITIVE_EXPRESSION: operator cannot be null");
-		if (operator.getTokenType() != Token.TokenType.CONSTANT || operator.getTokenType() != Token.TokenType.ID)
-			throw new IllegalArgumentException ("ERROR_PRIMITIVE_EXPRESSION: primitive operator has to be CONSTANT or ID");
+		if (operator.getTokenType() != Token.TokenType.CONSTANT && operator.getTokenType() != Token.TokenType.ID)
+			throw new IllegalArgumentException ("ERROR_PRIMITIVE_EXPRESSION: primitive operator has to be CONSTANT or ID but is: " + operator.getTokenType());
 		this.operator = operator;
 		if (this.operatorType() == Token.TokenType.ID){
 			if (env == null) {
@@ -39,7 +39,7 @@ public class PrimitiveExpression extends Expression{
 	@Override
 	public String toString() {
 		// id and constant have values != null
-		return (this.operatorType().name() + ":" + this.operator.getTokenValue());
+		return (this.operatorType().name() + ":" + this.operator.getTokenValue() + " ");
 	}
 
 	@Override

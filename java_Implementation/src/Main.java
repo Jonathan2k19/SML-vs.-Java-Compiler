@@ -1,11 +1,13 @@
 import java.util.List;
 import java.util.Scanner;
 
+import expressions.Environment;
 import lexer.Lexer;
 import lexer.Token;
+import parser.Parser;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		/* ##########################################################
 		 * 	LEXER: GENERATES A TOKEN LIST FROM THE INPUT STRING
 		 * ##########################################################
@@ -20,21 +22,25 @@ public class Main {
 		
 		// Lexing the input
 		Lexer myLexer = new Lexer (inputString);
-		try {
-			List<Token> tokens = myLexer.lex();
-			for (Token token : tokens) {
-				System.out.println(token);
-			}
-		} catch (Exception e) {
-			System.out.println("ERROR_LEXING: It seems like you entered something illegal.\n"
-					+ "-->EXAMPLE of valid input: x and ((false -> true) and (not true))");
-		}
+		List<Token> tokens = myLexer.lex();
+		// EXAMPLE: x and ((false -> true) and (not true))
+		System.out.println("The lexed input is: ");
+		for (Token token : tokens)
+			System.out.println("\t" + token);
 		
 		
 		/* #################################################################### 
 		 * 	PARSER: GENERATES A SYNTAX TREE LIKE EXPRESSION FROM A TOKEN LIST
 		 * ####################################################################
 		 **/
+		// Create an type environment e. g. ["x":true, "y":false]
+		Environment myEnvironment = new Environment();
+		myEnvironment.addEnvEntry("x", false);
+		
+		// Create a parser
+		Parser myParser = new Parser(myEnvironment);
+		myParser.parse(tokens);
+		
 		
 		//TODO: check expressions, environment
 		

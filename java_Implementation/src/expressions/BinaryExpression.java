@@ -18,7 +18,7 @@ public class BinaryExpression extends Expression{
 	public BinaryExpression (Token operator, Expression left, Expression right) {
 		if (operator == null || left == null || right == null)
 			throw new IllegalArgumentException ("ERROR_BINARY_EXPRESSION: BinaryExpression takes 3 arguments, all of which are != null");
-		if (operator.getTokenType() != Token.TokenType.AND || operator.getTokenType() != Token.TokenType.IMP)
+		if (operator.getTokenType() != Token.TokenType.AND && operator.getTokenType() != Token.TokenType.IMP)
 			throw new IllegalArgumentException ("ERROR_BINARY_EXPRESSION: Operator of binary expression has to be AND or IMP");
 		this.left = left;
 		this.operator = operator;

@@ -31,6 +31,12 @@ public class Lexer {
 		}
 	}
 	
+	
+	
+	//TODO, FIXME: when entering a single "(" the lexer does not lex it 
+	
+	
+	
 	// METHODS
 	public List<Token> lex () throws Exception {
 		List<Token> tokens = new ArrayList<Token>();

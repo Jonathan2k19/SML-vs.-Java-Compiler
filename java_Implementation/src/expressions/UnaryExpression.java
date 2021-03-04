@@ -27,7 +27,7 @@ public class UnaryExpression extends Expression{
 	// METHODS
 	@Override
 	public String toString() {
-		return (this.operatorType().name() + " (" + this.expression.toString() + ")");
+		return (" " + this.operatorType().name() + " (" + this.expression.toString() + ")");
 	}
 
 	@Override
