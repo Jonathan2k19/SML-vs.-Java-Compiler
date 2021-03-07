@@ -188,7 +188,6 @@ public class Parser {
 		} else if (firstToken.getTokenType() == Token.TokenType.LPAR){
 			try {	
 				if (arrowExp(withoutFirstToken).getParseNext().get(0).getTokenType() == Token.TokenType.RPAR) {
-					System.out.println("rpar: " + arrowExp(withoutFirstToken).getParseNext().get(0).getTokenType());
 					List<Token> arrParseNext = arrowExp(withoutFirstToken).getParseNext();								
 					ParsedUnparsedPair arrowParsed = new ParsedUnparsedPair(arrowExp(withoutFirstToken).getParsed(), 
 							arrParseNext.subList(1, arrParseNext.size()));												

@@ -51,4 +51,12 @@ public class BinaryExpression extends Expression{
 		return this.operator.getTokenType();
 	}
 
+	
+	@Override
+	public boolean checkType() {
+		if ((this.left.checkType() == true ||  this.left.checkType() == false)
+				&& (this.right.checkType() == true || this.right.checkType() == false))
+			return true;
+		return false;
+	}
 }

@@ -62,4 +62,12 @@ public class PrimitiveExpression extends Expression{
 	public TokenType operatorType() {
 		return (this.operator.getTokenType());
 	}
+
+
+	@Override
+	public boolean checkType() {
+		if (this.calculateValue() == true || this.calculateValue() == false)
+			return true;
+		return false;	// if this.env.lookupId(this.operator.getTokenValue()) throws exception
+	}
 }

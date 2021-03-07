@@ -42,4 +42,11 @@ public class UnaryExpression extends Expression{
 		return (this.operator.getTokenType());
 	}
 
+
+	@Override
+	public boolean checkType() {
+		if (this.expression.checkType() == true || this.expression.checkType() == false)
+			return true;
+		return false;
+	}
 }

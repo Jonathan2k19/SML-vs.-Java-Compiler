@@ -28,7 +28,10 @@ public abstract class Expression {
 	 *@return the TokenType of the operator 
 	 */
 	public abstract Token.TokenType operatorType();
+		
 	
-	
-	//TODO: add checkType methods for elaboration
+	/**
+	 *@return true if the types are correct (always has to be boolean => check if true|false), false otherwise 
+	 */
+	public abstract boolean checkType();
 }
